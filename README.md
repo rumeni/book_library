@@ -16,9 +16,6 @@ Django REST API for managing books in a library with React frontend.
 git clone <repository>
 cd book_library
 docker-compose up --build
-
-# Populate sample data (optional, run in separate terminal)
-docker-compose exec backend python manage.py populate_books
 ```
 
 **Access:**

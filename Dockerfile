@@ -23,4 +23,14 @@ COPY . .
 EXPOSE 8000
 
 # Run migrations and start server
-CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+# Run: čekaj DB -> migrate -> seed -> runserver
+CMD ["sh", "-c", "\
+  until pg_isready -h ${POSTGRES_HOST:-db} -p ${POSTGRES_PORT:-5432} -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-postgres}; do \
+    echo 'Waiting for Postgres...'; sleep 2; \
+  done && \
+  echo 'Postgres is up.' && \
+  python manage.py migrate --noinput && \
+  python manage.py populate_books && \
+  python manage.py runserver 0.0.0.0:8000 \
+"]
+
