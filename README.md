@@ -15,6 +15,11 @@ Django REST API for managing books in a library with React frontend.
 ```bash
 git clone <repository>
 cd book_library
+
+# Copy environment file and configure if needed
+cp .env.example .env
+
+# Start all services
 docker-compose up --build
 ```
 
@@ -26,20 +31,40 @@ docker-compose up --build
 
 ### Local Development
 
+#### Prerequisites
+
+- Python 3.10+ with pip
+- Node.js 16+ with npm
+- PostgreSQL 12+ (locally installed)
+
+#### Database Setup (PostgreSQL)
+
+1. Install PostgreSQL locally
+2. Create database and user:
+
+```sql
+-- Connect as postgres user and run these commands:
+CREATE DATABASE book_library;
+CREATE USER library_user WITH PASSWORD 'library_password';
+GRANT ALL PRIVILEGES ON DATABASE book_library TO library_user;
+ALTER DATABASE book_library OWNER TO library_user;
+```
+
 #### Backend Setup
 
 ```bash
 # Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+python -m venv .venv
+.venv\Scripts\activate  # Windows
+# source .venv/bin/activate  # Linux/Mac
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Configure environment variables
-# Copy the example file and update with your values
-cp .env.example .env
-# Edit .env with your actual configuration values
+# Configure environment variables for local development
+# Copy .env.example to .env and edit the following line:
+# Change: POSTGRES_HOST=db
+# To:     POSTGRES_HOST=localhost
 
 # Run migrations
 python manage.py migrate
@@ -59,8 +84,16 @@ python manage.py runserver
 ```bash
 cd frontend
 npm install
-npm start
+
+# Start frontend with API URL for local backend
+set REACT_APP_API_URL=http://localhost:8000 && npm start
 ```
+
+**Local Access:**
+
+- Frontend: http://localhost:3000
+- API: http://localhost:8000/books/
+- Admin: http://localhost:8000/admin
 
 ## API Endpoints
 
@@ -93,30 +126,25 @@ GET /books/?ordering=-title
 GET /books/?ordering=author
 ```
 
-**Pagination:**
-
-```bash
-GET /books/?page=2
-```
-
 ## Features
 
 ### Backend
 
-- Complete CRUD operations
-- Case-insensitive search and sorting
-- ISBN validation (ISBN-10/13 format)
-- Bulk operations
-- Database indexing for performance
-- Comprehensive test coverage
+- Complete CRUD operations for books
+- Case-insensitive search (title, author) and sorting
+- ISBN validation (ISBN-10/13 format) with uniqueness constraint
+- Bulk operations (update by author)
+- Advanced filtering (genre, date ranges)
+- Database indexing for performance (author, genre fields)
+- SQLite testing environment for fast tests
 
 ### Frontend
 
-- Responsive design
+- Responsive React interface
 - Real-time search and filtering
-- Dark/light theme toggle
 - Book form with validation
 - Author-based operations
+- API integration with axios
 
 ## Database Schema
 
@@ -145,19 +173,37 @@ UNIQUE (isbn) WHERE isbn != '';
 ## Testing
 
 ```bash
-# Run all tests
-docker-compose exec backend python manage.py test
+# Run all tests (uses SQLite in-memory database for speed)
+python manage.py test
 
 # Run specific test
 python manage.py test books.tests.BookAPITest
 
-# Check test coverage
-python manage.py test books.tests -v 2
+# Docker testing
+docker-compose exec backend python manage.py test
+
+# Verbose testing
+python manage.py test -v 2
 ```
+
+**Note:** Tests automatically use SQLite in-memory database instead of PostgreSQL for better performance and to avoid PostgreSQL template database issues.
 
 ### Troubleshooting Tests
 
-If you encounter PostgreSQL collation version warnings:
+**PostgreSQL Collation Version Mismatch (Local Development):**
+If you encounter collation version warnings during local testing:
+
+```sql
+-- Connect as postgres user and run:
+psql -U postgres
+ALTER DATABASE postgres REFRESH COLLATION VERSION;
+ALTER DATABASE template1 REFRESH COLLATION VERSION;
+ALTER DATABASE book_library REFRESH COLLATION VERSION;
+\q
+```
+
+**Docker Environment:**
+If you encounter PostgreSQL collation version warnings in Docker:
 
 ```bash
 # Stop containers and remove volumes
