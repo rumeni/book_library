@@ -16,6 +16,9 @@ Django REST API for managing books in a library with React frontend.
 git clone <repository>
 cd book_library
 docker-compose up --build
+
+# Populate sample data (optional, run in separate terminal)
+docker-compose exec backend python manage.py populate_books
 ```
 
 **Access:**
@@ -188,11 +191,11 @@ The application requires environment variables for configuration. Create a `.env
 | `DJANGO_SECRET_KEY`      | Django secret key     | Yes      |
 | `DEBUG`                  | Debug mode            | Yes      |
 | `ALLOWED_HOSTS`          | Allowed hosts         | Yes      |
-| `DB_NAME`                | Database name         | Yes      |
-| `DB_USER`                | Database user         | Yes      |
-| `DB_PASSWORD`            | Database password     | Yes      |
-| `DB_HOST`                | Database host         | Yes      |
-| `DB_PORT`                | Database port         | Yes      |
+| `POSTGRES_DB`            | Database name         | Yes      |
+| `POSTGRES_USER`          | Database user         | Yes      |
+| `POSTGRES_PASSWORD`      | Database password     | Yes      |
+| `POSTGRES_HOST`          | Database host         | Yes      |
+| `POSTGRES_PORT`          | Database port         | Yes      |
 | `DB_CONN_MAX_AGE`        | DB connection max age | Yes      |
 | `PAGE_SIZE`              | API pagination size   | Yes      |
 | `CORS_ALLOWED_ORIGINS`   | Allowed CORS origins  | Yes      |
@@ -215,6 +218,9 @@ docker-compose up -d          # Run in background
 docker-compose logs backend   # View backend logs
 docker-compose restart backend
 docker-compose down           # Stop all services
+
+# Populate sample data
+docker-compose exec backend python manage.py populate_books
 
 # Database access
 docker exec -it book_library_db psql -U postgres -d book_library
