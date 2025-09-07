@@ -146,7 +146,7 @@ UNIQUE (isbn) WHERE isbn != '';
 
 ```bash
 # Run all tests
-docker exec book_library_backend python manage.py test
+docker-compose exec backend python manage.py test
 
 # Run specific test
 python manage.py test books.tests.BookAPITest
@@ -154,6 +154,23 @@ python manage.py test books.tests.BookAPITest
 # Check test coverage
 python manage.py test books.tests -v 2
 ```
+
+### Troubleshooting Tests
+
+If you encounter PostgreSQL collation version warnings:
+
+```bash
+# Stop containers and remove volumes
+docker-compose down -v
+
+# Rebuild and restart
+docker-compose up --build
+
+# Then run tests
+docker-compose exec backend python manage.py test
+```
+
+**Note:** PostgreSQL collation warnings are common in Docker environments and don't affect test functionality.
 
 ## Project Structure
 
